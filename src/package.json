@@ -1,0 +1,28 @@
+{
+  "name": "webresourcecompiler",
+  "version": "1.0.2",
+  "description": "auto compile and minimize resources for web projects like SASS and JavaScript",
+  "main": "WebResourceCompiler.js",
+  "scripts": {
+    "WebResourceCompiler": "babel-node --presets es2020 WebResourceCompiler"
+  },
+  "author": "Stein Lundbeck",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/node": "^7.10.5",
+    "babel-cli": "^6.26.0",
+    "babel-minify": "^0.5.1",
+    "babel-preset-es2020": "^1.0.2",
+    "babel-preset-minify": "^0.5.1",
+    "generate-source-map": "0.0.5",
+    "iconv": "^3.0.0",
+    "node-sass": "^4.14.1",
+    "node-watch": "^0.6.4",
+    "uglify-js": "^3.10.1",
+    "uglifycss": "0.0.29"
+  },
+  "dependencies": {
+    "path": "^0.12.7"
+  }
+}

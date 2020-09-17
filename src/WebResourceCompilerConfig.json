@@ -1,0 +1,12 @@
+{
+  "projects": [],
+  "default": {
+    "stylePath": "<base>//STYLE",
+    "styleOutPath": "<base>//wwwroot//STYLE",
+    "styleBundlePath": "<base>//wwwroot//STYLE//<name>.css",
+    "scriptPath": "<base>//SCRIPT",
+    "scriptOutPath": "<base>//wwwroot//SCRIPT",
+    "scriptBundlePath": "<base>//wwwroot//SCRIPT//<name>.js",
+    "reCompile": false
+  }
+}
