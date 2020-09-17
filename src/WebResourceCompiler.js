@@ -86,7 +86,6 @@ const handleFile = (type, project, source) => {
 
                     try {
                         fs.writeFileSync(outMinMap, minCSS.map);
-                        finished(source.file.name);
                     }
                     catch (cssMinMapError) {
                         logError("Compile CSS Min Map", cssMinMapError);
