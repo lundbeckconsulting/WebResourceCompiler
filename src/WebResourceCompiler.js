@@ -127,7 +127,7 @@ const handleFile = (type, project, source) => {
         let mapMin = smap(minFl);
 
         try {
-            fs.writeFileSync(outFile, content);
+            fs.writeFileSync(outFile, content + getSourceMapping(getFilename(outMap)) + "\n");
 
             try {
                 fs.writeFileSync(outMap, map.toString());
@@ -337,34 +337,6 @@ const getFolder = (type, path, includeAllFiles = false) => {
             result.push({ "file": file, "path": folderPath, "source": `${folderPath}//${file.name}`, "outFilename": outFilename });
         }
     };
-
-    return result;
-};
-
-const getFolders = (path) => {
-    let result = [];
-
-    fs.readdirSync(path, { withFileTypes: true }).forEach((item) => {
-        if (item.isDirectory()) {
-            let tmp = `${path}//${item.name}`;
-
-            result.push({ "path": tmp });
-
-            fetchFolder(tmp);
-        }
-
-        function fetchFolder(pth) {
-            fs.readdirSync(pth, { withFileTypes: true }).forEach((dir) => {
-                if (dir.isDirectory()) {
-                    pth += `${pth}//${dir.name}`;
-
-                    result.push(pth);
-
-                    fetchFolder(pth);
-                }
-            });
-        };
-    });
 
     return result;
 };
