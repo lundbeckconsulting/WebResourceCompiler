@@ -13,6 +13,7 @@ const watch = require("node-watch");
 const config = require(".//WebResourceCompilerConfig");
 const options = config.default;
 const processBundlePath = (project, path) => path.replace("<name>", project.name.replace(" ", ""));
+var _targetFilename = null;
 
 const getTimestamp = () => {
     let dt = new Date();
@@ -50,13 +51,25 @@ const logError = (cmd, error, throw_ = false) => {
     }
 };
 
-const finished = (filename) => log("Finished", `File => ${filename}`);
+const finished = (filename) => {
+    let txt = filename;
+
+    if (_targetFilename !== null && _targetFilename.length > 0) {
+        txt += ` => ${_targetFilename}`;
+    }
+
+    log("Finished", `File => ${txt}`);
+
+    _targetFilename = null;
+};
 
 const handleFile = (type, project, source) => {
     let outFile = (type === "style" ? project.styleOut : project.scriptOut) + "//" + source.outFilename;
     let outMinFile = outFile.replace(type === "style" ? ".css" : ".js", type === "style" ? ".min.css" : ".min.js");
     let outMap = `${outFile}.map`;
     let outMinMap = `${outMinFile}.map`;
+
+    _targetFilename = source.outFilename;
 
     if (type === "style") {
         let mainCSS = sass.renderSync({
@@ -156,17 +169,17 @@ const handleFile = (type, project, source) => {
 };
 
 const handleBundle = (type, project) => {
-    log("Bundle", `Type => ${type}`);
-
     let bundlePath = type === "style" ? project.styleBundle : project.scriptBundle;
-    let targetPath = type === "style" ? project.styleOut : project.scriptOut;
+    let targetPath = type === "style" ? project.styleOut : project.script;
     let content = null, files = [];
+
+    log("Bundle", `${type.toUpperCase()} => ${getFilename(bundlePath)}`);
 
     fs.readdirSync(targetPath, { withFileTypes: true }).forEach((file) => {
         if (!file.isDirectory()) {
             let filePath = `${targetPath}//${file.name}`;
 
-            if (file.name.endsWith(type === "style" ? ".css" : ".js") && !file.name.endsWith(type === "style" ? ".min.css" : ".min.js")) {
+            if (file.name.endsWith(type === "style" ? ".css" : ".js") && !file.name.endsWith(type === "style" ? ".min.css" : ".min.js") && getFilename(bundlePath) !== file.name) {
                 let tmp = fs.readFileSync(filePath, "utf8"), tmpSourceMappingString = "/*# sourceMappingURL";
 
                 if (tmp.length > 0) {
@@ -188,8 +201,6 @@ const handleBundle = (type, project) => {
     });
 
     if (content) {
-        content;
-
         try {
             fs.writeFileSync(bundlePath, content);
 
