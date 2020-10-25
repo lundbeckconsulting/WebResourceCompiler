@@ -1,6 +1,6 @@
 {
   "name": "lc-webresourcecompiler",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Auto-compile and minimize project resources like SASS and JavaScript. Flexible configuration allows for customization to support any project and technology.",
   "keywords": [ "web", "app", "site", "website", "javascript", "sass", "css", "compile", "minimize", "bundle" ],
   "homepage": "https://github.com/lundbeckconsulting/WebResourceCompiler",
