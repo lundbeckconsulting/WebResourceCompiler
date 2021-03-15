@@ -51,6 +51,17 @@ const logError = (cmd, error, throw_ = false) => {
     }
 };
 
+const removeSourceMapRef = (content) => {
+    let result = content;
+    let val = "//# sourceMappingUrl";
+
+    if (content.indexOf(val) > 0) {
+        result = content.substring(0, content.indexOf(val));
+    }
+
+    return result;
+};
+
 const finished = (filename) => {
     let txt = filename;
 
@@ -170,7 +181,7 @@ const handleFile = (type, project, source) => {
 
 const handleBundle = (type, project) => {
     let bundlePath = type === "style" ? project.styleBundle : project.scriptBundle;
-    let targetPath = type === "style" ? project.styleOut : project.script;
+    let targetPath = type === "style" ? project.styleOut : project.scriptOut;
     let content = null, files = [];
 
     log("Bundle", `${type.toUpperCase()} => ${getFilename(bundlePath)}`);
@@ -180,12 +191,10 @@ const handleBundle = (type, project) => {
             let filePath = `${targetPath}//${file.name}`;
 
             if (file.name.endsWith(type === "style" ? ".css" : ".js") && !file.name.endsWith(type === "style" ? ".min.css" : ".min.js") && getFilename(bundlePath) !== file.name) {
-                let tmp = fs.readFileSync(filePath, "utf8"), tmpSourceMappingString = "/*# sourceMappingURL";
+                let tmp = fs.readFileSync(filePath, "utf8");
 
                 if (tmp.length > 0) {
-                    if (tmp.indexOf(tmpSourceMappingString) > 0) {
-                        tmp = tmp.substring(0, tmp.indexOf(tmpSourceMappingString));
-                    }
+                    tmp = removeSourceMapRef(tmp);
 
                     if (!content) {
                         content = tmp;
@@ -368,7 +377,7 @@ const load = () => {
 
         try {
             watch(watchPath, { recursive: true, filter: filter }, (evt, name) => {
-                if (evt === "update") {
+                if (!getFilename(name).startsWith("_") && evt === "update") {
                     log("Changed", `${project.name} => ${getFilename(".//" + name)}`);
 
                     let tmpFiles = getFolder(type, type === "style" ? project.style : project.script);
