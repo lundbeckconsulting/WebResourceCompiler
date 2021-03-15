@@ -54,7 +54,7 @@ Example:
 
 ## Run
 
-> **npm run WebResourceCompiler**
+> **npm run WRC**
 
 
 ---
