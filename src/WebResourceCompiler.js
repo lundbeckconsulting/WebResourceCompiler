@@ -281,8 +281,10 @@ const getProject = (project) => {
     let stylePath = project.stylePath ? processPath(project.basePath, project.stylePath) : processPath(project.basePath, options.stylePath), styleOutPath = project.styleOutPath ? processPath(project.basePath, project.styleOutPath) : processPath(project.basePath, options.styleOutPath), styleBundlePath = project.styleBundlePath ? processBundlePath(project, processPath(project.basePath, project.styleBundlePath)) : processBundlePath(project, processPath(project.basePath, options.styleBundlePath));
     let scriptPath = project.scriptPath ? processPath(project.basePath, project.scriptPath) : processPath(project.basePath, options.scriptPath), scriptOutPath = project.scriptOutPath ? processPath(project.basePath, project.scriptOutPath) : processPath(project.basePath, options.scriptOutPath), scriptBundlePath = project.scriptBundlePath ? processBundlePath(project, processPath(project.basePath, project.scriptBundlePath)) : processBundlePath(project, processPath(project.basePath, options.scriptBundlePath));
     let reCompile = project.hasOwnProperty("reCompile") ? project.reCompile : options.reCompile;
+    let bundleStyle = project.hasOwnProperty("bundleStyle") ? project.bundleStyle : options.bundleStyle;
+    let bundleScript = project.hasOwnProperty("bundleScript") ? project.bundleScript : options.bundleScript;
 
-    return { "name": project.name, "base": project.basePath, "style": stylePath, "styleOut": styleOutPath, "styleBundle": styleBundlePath, "script": scriptPath, "scriptOut": scriptOutPath, "scriptBundle": scriptBundlePath, "reCompile": reCompile };
+    return { "name": project.name, "base": project.basePath, "style": stylePath, "styleOut": styleOutPath, "styleBundle": styleBundlePath, "script": scriptPath, "scriptOut": scriptOutPath, "scriptBundle": scriptBundlePath, "reCompile": reCompile, "bundleStyle": bundleStyle, "bundleScript": bundleScript };
 };
 
 const getFolder = (type, path, includeAllFiles = false) => {
@@ -422,13 +424,17 @@ const load = () => {
             handleFile("style", project, file);
         });
 
-        handleBundle("style", project);
+        if (project.bundleStyle) {
+            handleBundle("style", project);
+        }
 
         scriptFiles.forEach((file) => {
             handleFile("script", project, file);
         });
 
-        handleBundle("script", project);
+        if (project.bundleScript) {
+            handleBundle("script", project);
+        }
 
         log("Processed", `${project.name} => ${styleFiles.length.toString()} style & ${scriptFiles.length.toString()} script files`);
     };

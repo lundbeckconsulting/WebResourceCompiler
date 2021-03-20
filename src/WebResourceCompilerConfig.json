@@ -36,6 +36,8 @@
     "scriptPath": "<base>//SCRIPT",
     "scriptOutPath": "<base>//wwwroot//SCRIPT",
     "scriptBundlePath": "<base>//wwwroot//SCRIPT//<name>.js",
-    "reCompile": false
+    "reCompile": false,
+    "bundleStyle": true,
+    "bundleScript": true
   }
 }
