@@ -21,6 +21,10 @@ The configuration is flexible and supports any structure. The file includes defa
 * **scriptOutPath**: Path to folder for resulting JavaScript files
 * **scriptBundlePath**: Path to folder for bundles JavaScript file
 * **reCompile**: If set to _true_ recompiles all files in project
+* **processStyle**: Indicates to process SASS files
+* **processScript**: Indicates to process JavaScript files
+* **bundleStyle**: Indicates to bundle CSS files
+* **bundleScript**: Indicates to bundle JavaScript files
 
 Example:
 
@@ -37,7 +41,8 @@ Example:
       "styleOutPath": "<base>//_Build//STYLE",
       "scriptOutPath": "<base>//_Build//SCRIPT",
       "styleBundlePath": "<base>//_Build//Custom.css",
-      "scriptBundlePath": "<base>//_Build//Custom.js"
+      "scriptBundlePath": "<base>//_Build//Custom.js",
+      "bundleScript": false
     },
 ],
   "default": {
@@ -47,7 +52,11 @@ Example:
     "scriptPath": "<base>//SCRIPT",
     "scriptOutPath": "<base>//wwwroot//SCRIPT",
     "scriptBundlePath": "<base>//wwwroot//SCRIPT//<name>.js",
-    "reCompile": false
+    "reCompile": false,
+    "processStyle": true,
+    "processScript": true,
+    "bundleStyle": true,
+    "bundleScript": true
   }
 }
 ```
