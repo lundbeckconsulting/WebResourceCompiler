@@ -82,7 +82,7 @@ const handleFile = (type, project, source) => {
 
     _targetFilename = source.outFilename;
 
-    if (type === "style") {
+    if (type === "style" && project.processStyle) {
         let mainCSS = sass.renderSync({
             file: source.source,
             outFile: outFile,
@@ -127,7 +127,7 @@ const handleFile = (type, project, source) => {
             logError("Compile SASS", cssError);
         }
     }
-    else if (type === "script") {
+    else if (type === "script" && project.processScript) {
         let content = fs.readFileSync(source.source, "utf8");
         let filename = getFilename(outFile);
         let jsCode = babel.transform(content, {
@@ -281,10 +281,12 @@ const getProject = (project) => {
     let stylePath = project.stylePath ? processPath(project.basePath, project.stylePath) : processPath(project.basePath, options.stylePath), styleOutPath = project.styleOutPath ? processPath(project.basePath, project.styleOutPath) : processPath(project.basePath, options.styleOutPath), styleBundlePath = project.styleBundlePath ? processBundlePath(project, processPath(project.basePath, project.styleBundlePath)) : processBundlePath(project, processPath(project.basePath, options.styleBundlePath));
     let scriptPath = project.scriptPath ? processPath(project.basePath, project.scriptPath) : processPath(project.basePath, options.scriptPath), scriptOutPath = project.scriptOutPath ? processPath(project.basePath, project.scriptOutPath) : processPath(project.basePath, options.scriptOutPath), scriptBundlePath = project.scriptBundlePath ? processBundlePath(project, processPath(project.basePath, project.scriptBundlePath)) : processBundlePath(project, processPath(project.basePath, options.scriptBundlePath));
     let reCompile = project.hasOwnProperty("reCompile") ? project.reCompile : options.reCompile;
+    let processStyle = project.hasOwnProperty("processStyle") ? project.processStyle : options.processStyle;
+    let processScript = project.hasOwnProperty("processScript") ? project.processScript : options.processScript;
     let bundleStyle = project.hasOwnProperty("bundleStyle") ? project.bundleStyle : options.bundleStyle;
     let bundleScript = project.hasOwnProperty("bundleScript") ? project.bundleScript : options.bundleScript;
 
-    return { "name": project.name, "base": project.basePath, "style": stylePath, "styleOut": styleOutPath, "styleBundle": styleBundlePath, "script": scriptPath, "scriptOut": scriptOutPath, "scriptBundle": scriptBundlePath, "reCompile": reCompile, "bundleStyle": bundleStyle, "bundleScript": bundleScript };
+    return { "name": project.name, "base": project.basePath, "style": stylePath, "styleOut": styleOutPath, "styleBundle": styleBundlePath, "script": scriptPath, "scriptOut": scriptOutPath, "scriptBundle": scriptBundlePath, "reCompile": reCompile, "processStyle": processStyle, "processScript": processScript, "bundleStyle": bundleStyle, "bundleScript": bundleScript };
 };
 
 const getFolder = (type, path, includeAllFiles = false) => {
