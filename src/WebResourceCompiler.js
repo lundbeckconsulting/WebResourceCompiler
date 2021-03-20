@@ -402,7 +402,11 @@ const load = () => {
 
                     if (file) {
                         handleFile(type, project, file);
-                        handleBundle(type, project);
+
+                        if (type === "script" && project.bundleScript) {
+                            handleBundle(type, project);;
+                        }
+
                         finished(getFilename(file.source));
                     }
                     else {

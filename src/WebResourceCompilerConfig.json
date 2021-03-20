@@ -9,11 +9,12 @@
         "basePath": ".//LC_TECH//Sites//LC.Creator.Home.Butter"
     },
     {
-        "name": "Assets.Hyper",
-        "basePath": ".//LC_TECH//Sites//Assets.Hyper"
+        "name": "Assets Hyper",
+        "basePath": ".//LC_TECH//Sites//Assets.Hyper",
+        "bundleScript": false
     },
     {
-      "name": "Creator.Components",
+      "name": "Creator Components",
       "basePath": ".//LC_TECH//DEV//Creator.Components",
       "styleOutPath": "<base>//_Build//STYLE",
       "scriptOutPath": "<base>//_Build//SCRIPT",
