@@ -409,6 +409,10 @@ const load = () => {
                             handleBundle(type, project);;
                         }
 
+                        if (type === "style" && project.bundleStyle) {
+                            handleBundle(type, project);
+                        }
+
                         finished(getFilename(file.source));
                     }
                     else {
