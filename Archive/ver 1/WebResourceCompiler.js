@@ -1,7 +1,7 @@
 /*
     @Author     Stein Lundbeck
-    @Date       27.07.2021
-    @Version    2.0.3
+    @Date        29.08.2020
+    @Version    1.0.7
 */
 
 const fs = require("fs");
@@ -82,11 +82,199 @@ const handleFile = (type, project, source) => {
     let outMinMap = `${outMinFile}.map`;
 
     _targetFilename = source.outFilename;
+
+    if (type === "style" && project.processStyle) {
+        let mainCSS = sass.renderSync({
+            file: source.source,
+            outFile: outFile,
+            indentedSyntax: true,
+            indentType: "tab",
+            outputStyle: "nested",
+            sourceMap: true
+        });
+
+        try {
+            fs.writeFileSync(outFile, mainCSS.css);
+
+            try {
+                fs.writeFileSync(outMap, mainCSS.map);
+
+                let minCSS = sass.renderSync({
+                    data: mainCSS.css.toString(),
+                    outFile: outMinFile,
+                    outputStyle: "compressed",
+                    sourceMap: true
+                });
+
+                try {
+                    fs.writeFileSync(outMinFile, minCSS.css);
+
+                    try {
+                        fs.writeFileSync(outMinMap, minCSS.map);
+                    }
+                    catch (cssMinMapError) {
+                        logError("Compile CSS Min Map", cssMinMapError);
+                    }
+                }
+                catch (cssMinError) {
+                    logError("Minimize CSS", cssMinError);
+                }
+            }
+            catch (cssMapError) {
+                logError("Compile CSS Map", cssMapError);
+            }
+        }
+        catch (cssError) {
+            logError("Compile SASS", cssError);
+        }
+    }
+    else if (type === "script" && project.processScript) {
+        let content = fs.readFileSync(source.source, "utf8");
+        let filename = getFilename(outFile);
+        let jsCode = babel.transform(content, {
+            presets: ["minify"]
+        });
+
+        let fl = {
+            source: content,
+            sourceRoot: "./",
+            sourceFile: filename
+        };
+
+        let minFl = {
+            source: jsCode.code,
+            sourceRoot: "./",
+            sourceFile: getFilename(outMinFile)
+        };
+
+        let map = smap(fl);
+        let mapMin = smap(minFl);
+
+        try {
+            fs.writeFileSync(outFile, content + getSourceMapping(getFilename(outMap)) + "\n");
+
+            try {
+                fs.writeFileSync(outMap, map.toString());
+
+                try {
+                    fs.writeFileSync(outMinFile, jsCode.code + getSourceMapping(getFilename(outMinMap)) + "\n");
+
+                    try {
+                        fs.writeFileSync(outMinMap, mapMin.toString() + "\n");
+                    }
+                    catch (minMapError) {
+                        logError("Create Min Map", minMapError);
+                    }
+                }
+                catch (minFileError) {
+                    logError("Create Min", minFileError);
+                }
+            }
+            catch (mapError) {
+                logError("Create Map", mapError);
+            }
+        }
+        catch (fileError) {
+            logError("Create", fileError);
+        }
+    }
 };
 
 const handleBundle = (type, project) => {
+    let bundlePath = type === "style" ? project.styleBundle : project.scriptBundle;
+    let targetPath = type === "style" ? project.styleOut : project.scriptOut;
+    let content = null, files = [];
 
+    log("Bundle", `${type.toUpperCase()} => ${getFilename(bundlePath)}`);
 
+    fs.readdirSync(targetPath, { withFileTypes: true }).forEach((file) => {
+        if (!file.isDirectory()) {
+            let filePath = `${targetPath}//${file.name}`;
+
+            if (file.name.endsWith(type === "style" ? ".css" : ".js") && !file.name.endsWith(type === "style" ? ".min.css" : ".min.js") && getFilename(bundlePath) !== file.name) {
+                let tmp = fs.readFileSync(filePath, "utf8");
+
+                if (tmp.length > 0) {
+                    tmp = removeSourceMapRef(tmp);
+
+                    if (!content) {
+                        content = tmp;
+                    }
+                    else {
+                        content += "\n\n" + tmp;
+                    }
+
+                    files.push({ "path": filePath, "content": tmp });
+                }
+            }
+        }
+    });
+
+    if (content) {
+        try {
+            fs.writeFileSync(bundlePath, content);
+
+            try {
+                if (type === "style") {
+                    fs.writeFileSync(bundlePath.replace(".css", ".min.css"), css.processString(content) + "\n");
+                }
+                else if (type === "script") {
+                    let bundleMinPath = bundlePath.replace(".js", ".min.js");
+                    let jsMin = babel.transform(content, {
+                        presets: ["minify"]
+                    });
+
+                    let jsFile = {
+                        source: content,
+                        sourceRoot: "./",
+                        sourceFile: getFilename(bundlePath)
+                    }
+
+                    let jsFileMin = {
+                        source: jsMin.code,
+                        sourceRoot: "./",
+                        sourceFile: getFilename(bundleMinPath)
+                    }
+
+                    let jsMap = smap(jsFile), jsMinMap = smap(jsFileMin);
+
+                    try {
+                        fs.writeFileSync(bundlePath, content + getSourceMapping(getFilename(bundlePath + ".map") + "\n"));
+
+                        try {
+                            fs.writeFileSync(`${bundlePath}.map`, jsMap.toString() + "\n");
+
+                            try {
+                                fs.writeFileSync(bundleMinPath, jsMin.code + getSourceMapping(getFilename(bundleMinPath + ".map") + "\n"));
+
+                                try {
+                                    fs.writeFileSync(`${bundleMinPath}.map`, jsMinMap.toString() + "\n");
+                                }
+                                catch (minMapError) {
+                                    logError("Create Map Min", minMapError);
+                                }
+                            }
+                            catch (minError) {
+                                logError("Create Bundle Min", minError);
+                            }
+                        }
+                        catch (mapError) {
+                            logError("Create Map", mapError);
+                        }
+                    }
+                    catch (bndlError) {
+                        logError("Create Bundle", bndlError);
+                    }
+                }
+            }
+            catch (minError) {
+                logError("Minimize Bundle", minError);
+            }
+        }
+        catch (error) {
+            logError("Create Bundle", error);
+        }
+    }
 };
 
 const getProject = (project) => {

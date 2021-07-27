@@ -1,0 +1,46 @@
+{
+  "projects": [
+    {
+      "name": "LC Home Bever",
+      "basePath": ".//LC_TECH//Sites//LC.Home.Bever"
+    },
+    {
+        "name": "Creator Butter",
+        "basePath": ".//LC_TECH//Sites//LC.Creator.Home.Butter"
+    },
+    {
+        "name": "Assets Hyper",
+        "basePath": ".//LC_TECH//Sites//Assets.Hyper",
+        "bundleScript": false
+    },
+    {
+      "name": "Creator Components",
+      "basePath": ".//LC_TECH//DEV//Creator.Components",
+      "styleOutPath": "<base>//_Build//STYLE",
+      "scriptOutPath": "<base>//_Build//SCRIPT",
+      "styleBundlePath": "<base>//_Build//Creator.Components.css",
+      "scriptBundlePath": "<base>//_Build//Creator.Components.js"
+    },
+    {
+        "name": "Creator",
+        "basePath": ".//LC_TECH//DEV//Creator",
+        "styleOutPath": "<base>//_Build//STYLE",
+        "styleBundlePath": "<base>//_Build//Creator.css",
+        "scriptOutPath": "<base>//_Build//SCRIPT",
+        "scriptBundlePath": "<base>//_Build//Creator.js"
+    }
+],
+  "default": {
+    "stylePath": "<base>//STYLE",
+    "styleOutPath": "<base>//wwwroot//STYLE",
+    "styleBundlePath": "<base>//wwwroot//STYLE//<name>.css",
+    "scriptPath": "<base>//SCRIPT",
+    "scriptOutPath": "<base>//wwwroot//SCRIPT",
+    "scriptBundlePath": "<base>//wwwroot//SCRIPT//<name>.js",
+    "reCompile": false,
+    "processStyle": true,
+    "processScript": true,
+    "bundleStyle": true,
+    "bundleScript": true
+  }
+}
