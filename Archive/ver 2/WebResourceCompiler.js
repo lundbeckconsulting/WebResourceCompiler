@@ -4,17 +4,64 @@
     @Version    2.0.3
 */
 
-const config = require(".//WRCConfig");
-const util = require(".//WRCUtility");
-const process = require("//WRCProcess")
-const options = config.default;
 const fs = require("fs");
 const pth = require("path");
+const sass = require("node-sass");
+const css = require("uglifycss");
+const smap = require("generate-source-map");
 const babel = require("@babel/core");
 const watch = require("node-watch");
-const { hasUncaughtExceptionCaptureCallback } = require("process");
+const config = require(".//WebResourceCompilerConfig");
+const options = config.default;
 const processBundlePath = (project, path) => path.replace("<name>", project.name.replace(" ", ""));
 var _targetFilename = null;
+
+const getTimestamp = () => {
+    let dt = new Date();
+    let hour = dt.getHours(), min = dt.getMinutes(), sec = dt.getSeconds(), milli = dt.getMilliseconds();
+
+    if (hour.toString().length === 1) {
+        hour = "0" + hour.toString();
+    }
+
+    if (min.toString().length === 1) {
+        min = "0" + min.toString();
+    }
+
+    if (sec.toString().length === 1) {
+        sec = "0" + sec.toString();
+    }
+
+    if (milli.toString().length > 2) {
+        milli = milli.toString().substring(0, 2);
+    }
+
+    return `${dt.toDateString()} ${hour}:${min}:${sec}.${milli}`;
+};
+
+const getFilename = (path) => pth.basename(path);
+const getSourceMapping = (name) => `\n\n\t//# sourceMappingUrl=${name}`;
+const log = (cmd, txt) => console.log(`${getTimestamp()}    -- ${cmd} / ${txt}`);
+const logError = (cmd, error, throw_ = false) => {
+    log(cmd, "An error occured");
+
+    console.error(error);
+
+    if (throw_) {
+        throw error;
+    }
+};
+
+const removeSourceMapRef = (content) => {
+    let result = content;
+    let val = "//# sourceMappingUrl";
+
+    if (content.indexOf(val) > 0) {
+        result = content.substring(0, content.indexOf(val));
+    }
+
+    return result;
+};
 
 const finished = (filename) => {
     let txt = filename;
@@ -23,58 +70,14 @@ const finished = (filename) => {
         txt += ` => ${_targetFilename}`;
     }
 
-    util.log("Finished", `File => ${txt}`);
+    log("Finished", `File => ${txt}`);
 
     _targetFilename = null;
 };
 
-const handleStyle = (target, project) => {
-
-};
-
-const handleScript = (target, project) => {
-
-};
-
-const handleImage = (target, project) => {
-
-};
-
 const handleFile = (type, project, source) => {
-    let outFile;
-    let outMinFile;
-
-    switch (type) {
-        case util.ResourceTypes.STYLE:
-            outFile = project.styleOut;
-            break;
-
-        case util.ResourceTypes.SCRIPT:
-            outFile = project.scriptOut;
-            break;
-
-        case util.ResourceTypes.IMAGE:
-            outFile = project.imagePath;
-            break;
-    }
-
-    outFile += `//${source.outFilename}`;
-
-    switch (type) {
-        case util.ResourceTypes.STYLE:
-            outMinFile = outFile.replace(".css", ".min.css");
-            break;
-
-        case util.ResourceTypes.SCRIPT:
-            outMinFile = outFile.replace(".js", ".min.js");
-            break;
-
-        case util.ResourceTypes.IMAGE:
-            let tmp = outFile.substring(outFile.lastIndexOf("."));
-            outMinFile = outFile.substring(0, outFile.lastIndexOf(".")) + `.min.${tmp}`;
-            break;
-    }
-
+    let outFile = (type === "style" ? project.styleOut : project.scriptOut) + "//" + source.outFilename;
+    let outMinFile = outFile.replace(type === "style" ? ".css" : ".js", type === "style" ? ".min.css" : ".min.js");
     let outMap = `${outFile}.map`;
     let outMinMap = `${outMinFile}.map`;
 
@@ -83,35 +86,20 @@ const handleFile = (type, project, source) => {
 
 const handleBundle = (type, project) => {
 
+
 };
 
 const getProject = (project) => {
     const processPath = (basePath, path) => path.replace("<base>", basePath);
     let stylePath = project.stylePath ? processPath(project.basePath, project.stylePath) : processPath(project.basePath, options.stylePath), styleOutPath = project.styleOutPath ? processPath(project.basePath, project.styleOutPath) : processPath(project.basePath, options.styleOutPath), styleBundlePath = project.styleBundlePath ? processBundlePath(project, processPath(project.basePath, project.styleBundlePath)) : processBundlePath(project, processPath(project.basePath, options.styleBundlePath));
     let scriptPath = project.scriptPath ? processPath(project.basePath, project.scriptPath) : processPath(project.basePath, options.scriptPath), scriptOutPath = project.scriptOutPath ? processPath(project.basePath, project.scriptOutPath) : processPath(project.basePath, options.scriptOutPath), scriptBundlePath = project.scriptBundlePath ? processBundlePath(project, processPath(project.basePath, project.scriptBundlePath)) : processBundlePath(project, processPath(project.basePath, options.scriptBundlePath));
-    let imagePath = project.imagePath ? processPath(project.basePath, project.imagePath) : processPath(project.basePath, options.imagePath);
     let reCompile = project.hasOwnProperty("reCompile") ? project.reCompile : options.reCompile;
     let processStyle = project.hasOwnProperty("processStyle") ? project.processStyle : options.processStyle;
     let processScript = project.hasOwnProperty("processScript") ? project.processScript : options.processScript;
     let bundleStyle = project.hasOwnProperty("bundleStyle") ? project.bundleStyle : options.bundleStyle;
     let bundleScript = project.hasOwnProperty("bundleScript") ? project.bundleScript : options.bundleScript;
 
-    return {
-        "name": project.name,
-        "base": project.basePath,
-        "style": stylePath,
-        "styleOut": styleOutPath,
-        "styleBundle": styleBundlePath,
-        "script": scriptPath,
-        "scriptOut": scriptOutPath,
-        "scriptBundle": scriptBundlePath,
-        "image": imagePath,
-        "reCompile": reCompile,
-        "processStyle": processStyle,
-        "processScript": processScript,
-        "bundleStyle": bundleStyle,
-        "bundleScript": bundleScript
-    };
+    return { "name": project.name, "base": project.basePath, "style": stylePath, "styleOut": styleOutPath, "styleBundle": styleBundlePath, "script": scriptPath, "scriptOut": scriptOutPath, "scriptBundle": scriptBundlePath, "reCompile": reCompile, "processStyle": processStyle, "processScript": processScript, "bundleStyle": bundleStyle, "bundleScript": bundleScript };
 };
 
 const getFolder = (type, path, includeAllFiles = false) => {
@@ -119,7 +107,7 @@ const getFolder = (type, path, includeAllFiles = false) => {
 
     fs.readdirSync(path, { withFileTypes: true }).forEach((file) => {
         if (!file.isDirectory()) {
-            addFile(file, path, createFilename(file, path, true, type === ResourceTypes.STYLE ? ".css" : ".js"));
+            addFile(file, path, createFilename(file, path, true, type === "style" ? ".css" : ".js"));
         }
         else {
             fetchFolder(`${path}//${file.name}`);
@@ -151,15 +139,7 @@ const getFolder = (type, path, includeAllFiles = false) => {
         filename = filename.replace(/(\/\/)/gm, ".");
 
         if (extension) {
-            let ext;
-
-            if (type === ResourceTypes.STYLE) {
-                ext = ".scss";
-            }
-            else if (type === ResourceTypes.SCRIPT) {
-                ext = ".js";
-            }
-
+            let ext = type === "style" ? ".scss" : ".js";
             filename = `${filename.substring(0, filename.lastIndexOf(ext))}${extension}`;
         }
 
@@ -178,12 +158,12 @@ const getFolder = (type, path, includeAllFiles = false) => {
         }
         else {
             if (!file.name.endsWith(".map")) {
-                if (type === ResourceTypes.STYLE) {
+                if (type === "style") {
                     if (!file.name.startsWith("_")) {
                         add = true;
                     }
                 }
-                else if (type === ResourceTypes.SCRIPT) {
+                else if (type === "script") {
                     add = true;
                 }
             }
@@ -203,16 +183,13 @@ const load = () => {
     const watchFolder = (type, project) => {
         let filter = null, watchPath = null;
 
-        if (type === ResourceTypes.STYLE) {
+        if (type === "style") {
             filter = /\.scss$/;
             watchPath = project.style;
         }
-        else if (type === ResourceTypes.SCRIPT) {
+        else if (type === "script") {
             filter = /\.js$/;
             watchPath = project.script;
-        }
-        else if (type === ResourceTypes.IMAGE) {
-            watchPath = project.image;
         }
 
         try {
@@ -220,9 +197,9 @@ const load = () => {
                 if (!getFilename(name).startsWith("_") && evt === "update") {
                     log("Changed", `${project.name} => ${getFilename(".//" + name)}`);
 
-                    let tmpFiles = getFolder(type, type === ResourceTypes.STYLE ? project.style : project.script);
+                    let tmpFiles = getFolder(type, type === "style" ? project.style : project.script);
                     let tmp = `.//${name}`.replace(/\\/gm, "//");
-                    tmp = tmp.substring(type === ResourceTypes.STYLE ? project.style.length : project.script.length + 2);
+                    tmp = tmp.substring(type === "style" ? project.style.length : project.script.length + 2);
 
                     if (tmp.startsWith("//")) {
                         tmp = tmp.substring(2);
@@ -230,7 +207,7 @@ const load = () => {
 
                     tmp = tmp.replace(/(\/\/)/gm, ".");
 
-                    if (type === ResourceTypes.STYLE) {
+                    if (type === "style") {
                         tmp = tmp.replace(".scss", ".css");
                     }
 
@@ -241,11 +218,11 @@ const load = () => {
                     if (file) {
                         handleFile(type, project, file);
 
-                        if (type === ResourceTypes.SCRIPT && project.bundleScript) {
+                        if (type === "script" && project.bundleScript) {
                             handleBundle(type, project);;
                         }
 
-                        if (type === ResourceTypes.STYLE && project.bundleStyle) {
+                        if (type === "style" && project.bundleStyle) {
                             handleBundle(type, project);
                         }
 
@@ -267,19 +244,19 @@ const load = () => {
         let styleFiles = getFolder("style", project.style), scriptFiles = getFolder("script", project.script);
 
         styleFiles.forEach((file) => {
-            handleFile(ResourceTypes.STYLE, project, file);
+            handleFile("style", project, file);
         });
 
         if (project.bundleStyle) {
-            handleBundle(ResourceTypes.STYLE, project);
+            handleBundle("style", project);
         }
 
         scriptFiles.forEach((file) => {
-            handleFile(ResourceTypes.SCRIPT, project, file);
+            handleFile("script", project, file);
         });
 
         if (project.bundleScript) {
-            handleBundle(ResourceTypes.SCRIPT, project);
+            handleBundle("script", project);
         }
 
         log("Processed", `${project.name} => ${styleFiles.length.toString()} style & ${scriptFiles.length.toString()} script files`);
@@ -294,8 +271,8 @@ const load = () => {
                     reCompile(project);
                 }
 
-                watchFolder(ResourceTypes.STYLE, project);
-                watchFolder(ResourceTypes.SCRIPT, project);
+                watchFolder("style", project);
+                watchFolder("script", project);
 
                 log("Watching", `Project => ${project.name}`);
             }

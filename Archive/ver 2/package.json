@@ -1,0 +1,48 @@
+{
+  "name": "lc-webresourcecompiler",
+  "version": "1.0.4",
+  "description": "Auto-compile and minimize project resources like SASS and JavaScript. Flexible configuration allows for customization to support any project and technology.",
+  "keywords": [
+    "web",
+    "app",
+    "site",
+    "website",
+    "javascript",
+    "sass",
+    "css",
+    "compile",
+    "minimize",
+    "bundle"
+  ],
+  "homepage": "https://github.com/lundbeckconsulting/WebResourceCompiler",
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/LundbeckConsulting"
+  },
+  "main": "WebResourceCompiler.js",
+  "files": [
+    "./WebResourceCompilerConfig.json"
+  ],
+  "scripts": {
+    "WRC": "node WebResourceCompiler.js"
+  },
+  "author": "Stein Lundbeck",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/node": "^7.10.5",
+    "babel-cli": "^6.26.0",
+    "babel-minify": "^0.5.1",
+    "babel-preset-es2020": "^1.0.2",
+    "babel-preset-minify": "^0.5.1",
+    "generate-source-map": "0.0.5",
+    "iconv": "^3.0.0",
+    "node-sass": "^4.14.1",
+    "node-watch": "^0.6.4",
+    "uglify-js": "^3.10.1",
+    "uglifycss": "0.0.29"
+  },
+  "dependencies": {
+    "path": "^0.12.7"
+  }
+}
