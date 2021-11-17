@@ -34,13 +34,25 @@
     "stylePath": "<base>//STYLE",
     "styleOutPath": "<base>//wwwroot//STYLE",
     "styleBundlePath": "<base>//wwwroot//STYLE//<name>.css",
+    "uglifyStyle": true,
     "scriptPath": "<base>//SCRIPT",
     "scriptOutPath": "<base>//wwwroot//SCRIPT",
     "scriptBundlePath": "<base>//wwwroot//SCRIPT//<name>.js",
+    "imagePaths": ["<base>//wwwroot//IMAGE > <base>//wwwroot//IMAGE//MIN"],
     "reCompile": false,
     "processStyle": true,
     "processScript": true,
     "bundleStyle": true,
-    "bundleScript": true
+    "bundleScript": true,
+    "imageMinimize": true,
+    "styleMinimize": true,
+    "scriptMinimize": true,
+    "imageTypes": [
+      "jpg",
+      "jpeg",
+      "gif",
+      "svg",
+      "png"
+    ]
   }
 }

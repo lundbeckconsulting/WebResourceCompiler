@@ -85,35 +85,6 @@ const handleBundle = (type, project) => {
 
 };
 
-const getProject = (project) => {
-    const processPath = (basePath, path) => path.replace("<base>", basePath);
-    let stylePath = project.stylePath ? processPath(project.basePath, project.stylePath) : processPath(project.basePath, options.stylePath), styleOutPath = project.styleOutPath ? processPath(project.basePath, project.styleOutPath) : processPath(project.basePath, options.styleOutPath), styleBundlePath = project.styleBundlePath ? processBundlePath(project, processPath(project.basePath, project.styleBundlePath)) : processBundlePath(project, processPath(project.basePath, options.styleBundlePath));
-    let scriptPath = project.scriptPath ? processPath(project.basePath, project.scriptPath) : processPath(project.basePath, options.scriptPath), scriptOutPath = project.scriptOutPath ? processPath(project.basePath, project.scriptOutPath) : processPath(project.basePath, options.scriptOutPath), scriptBundlePath = project.scriptBundlePath ? processBundlePath(project, processPath(project.basePath, project.scriptBundlePath)) : processBundlePath(project, processPath(project.basePath, options.scriptBundlePath));
-    let imagePath = project.imagePath ? processPath(project.basePath, project.imagePath) : processPath(project.basePath, options.imagePath);
-    let reCompile = project.hasOwnProperty("reCompile") ? project.reCompile : options.reCompile;
-    let processStyle = project.hasOwnProperty("processStyle") ? project.processStyle : options.processStyle;
-    let processScript = project.hasOwnProperty("processScript") ? project.processScript : options.processScript;
-    let bundleStyle = project.hasOwnProperty("bundleStyle") ? project.bundleStyle : options.bundleStyle;
-    let bundleScript = project.hasOwnProperty("bundleScript") ? project.bundleScript : options.bundleScript;
-
-    return {
-        "name": project.name,
-        "base": project.basePath,
-        "style": stylePath,
-        "styleOut": styleOutPath,
-        "styleBundle": styleBundlePath,
-        "script": scriptPath,
-        "scriptOut": scriptOutPath,
-        "scriptBundle": scriptBundlePath,
-        "image": imagePath,
-        "reCompile": reCompile,
-        "processStyle": processStyle,
-        "processScript": processScript,
-        "bundleStyle": bundleStyle,
-        "bundleScript": bundleScript
-    };
-};
-
 const getFolder = (type, path, includeAllFiles = false) => {
     let result = [];
 

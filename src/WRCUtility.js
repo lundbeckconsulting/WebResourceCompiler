@@ -1,5 +1,5 @@
 const config = require(".//WRCConfig");
-const pth = require("path");
+const pathRepo = require("path");
 const options = config.default;
 
 const ResourceTypes = {
@@ -42,20 +42,20 @@ const removeSourceMapRef = (content) => {
 	return result;
 };
 
-const getProject = (project) => {
+const getProject = (target) => {
 	const processPath = (basePath, path) => path.replace("<base>", basePath);
-	let stylePath = project.stylePath ? processPath(project.basePath, project.stylePath) : processPath(project.basePath, options.stylePath), styleOutPath = project.styleOutPath ? processPath(project.basePath, project.styleOutPath) : processPath(project.basePath, options.styleOutPath), styleBundlePath = project.styleBundlePath ? processBundlePath(project, processPath(project.basePath, project.styleBundlePath)) : processBundlePath(project, processPath(project.basePath, options.styleBundlePath));
-	let scriptPath = project.scriptPath ? processPath(project.basePath, project.scriptPath) : processPath(project.basePath, options.scriptPath), scriptOutPath = project.scriptOutPath ? processPath(project.basePath, project.scriptOutPath) : processPath(project.basePath, options.scriptOutPath), scriptBundlePath = project.scriptBundlePath ? processBundlePath(project, processPath(project.basePath, project.scriptBundlePath)) : processBundlePath(project, processPath(project.basePath, options.scriptBundlePath));
-	let imagePath = project.imagePath ? processPath(project.basePath, project.imagePath) : processPath(project.basePath, options.imagePath);
-	let reCompile = project.hasOwnProperty("reCompile") ? project.reCompile : options.reCompile;
-	let processStyle = project.hasOwnProperty("processStyle") ? project.processStyle : options.processStyle;
-	let processScript = project.hasOwnProperty("processScript") ? project.processScript : options.processScript;
-	let bundleStyle = project.hasOwnProperty("bundleStyle") ? project.bundleStyle : options.bundleStyle;
-	let bundleScript = project.hasOwnProperty("bundleScript") ? project.bundleScript : options.bundleScript;
+	let stylePath = target.stylePath ? processPath(target.basePath, target.stylePath) : processPath(target.basePath, options.stylePath), styleOutPath = target.styleOutPath ? processPath(target.basePath, target.styleOutPath) : processPath(target.basePath, options.styleOutPath), styleBundlePath = target.styleBundlePath ? processBundlePath(target, processPath(target.basePath, target.styleBundlePath)) : processBundlePath(target, processPath(target.basePath, options.styleBundlePath));
+	let scriptPath = target.scriptPath ? processPath(target.basePath, target.scriptPath) : processPath(target.basePath, options.scriptPath), scriptOutPath = target.scriptOutPath ? processPath(target.basePath, target.scriptOutPath) : processPath(target.basePath, options.scriptOutPath), scriptBundlePath = target.scriptBundlePath ? processBundlePath(target, processPath(target.basePath, target.scriptBundlePath)) : processBundlePath(target, processPath(target.basePath, options.scriptBundlePath));
+	let imagePath = target.imagePath ? processPath(target.basePath, target.imagePath) : processPath(target.basePath, options.imagePath);
+	let reCompile = target.hasOwnProperty("reCompile") ? target.reCompile : options.reCompile;
+	let processStyle = target.hasOwnProperty("processStyle") ? target.processStyle : options.processStyle;
+	let processScript = target.hasOwnProperty("processScript") ? target.processScript : options.processScript;
+	let bundleStyle = target.hasOwnProperty("bundleStyle") ? target.bundleStyle : options.bundleStyle;
+	let bundleScript = target.hasOwnProperty("bundleScript") ? target.bundleScript : options.bundleScript;
 
 	return {
-		"name": project.name,
-		"base": project.basePath,
+		"name": target.name,
+		"base": target.basePath,
 		"style": stylePath,
 		"styleOut": styleOutPath,
 		"styleBundle": styleBundlePath,
@@ -71,14 +71,14 @@ const getProject = (project) => {
 	};
 };
 
-const getFileName = (path) => pth.basename(path);
+const getFileName = (path) => pathRepo.basename(path);
 
 const getSourceMappingStr = (name) => `\n\n\t//# sourceMappingUrl=${name}`;
 
 const log = (cmd, txt) => console.log(`${getTimestamp()}    -- ${cmd} / ${txt}`);
 
 const logError = (cmd, error, throw_ = false) => {
-    log(cmd, "An error occured");
+    util.log(cmd, "An error occured");
 
     console.error(error);
 
@@ -101,7 +101,7 @@ const removeSourceMapRef = (content) => {
 module.exports = {
 	getTimestamp,
 	removeSourceMapRef,
-	getProject,
+	getProject,	
 	getFileName,
 	getSourceMappingStr,
 	log,

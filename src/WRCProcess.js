@@ -1,10 +1,11 @@
 const config = require(".//WRCConfig");
 const util = require(".//WRCUtility");
 const imgCompress = require("compress-images") // https://www.npmjs.com/package/compress-images
-const sassUtil = require("node-sass");
+const sassRepo = require("node-sass");
 const cssUgly = require("uglifycss");
 const srcMap = require("generate-source-map");
-const fsUtil = require("fs");
+const fileSys = require("fs");
+const watcher = require("node-watch");
 
 const handleStyle = (target, project) => {
 
@@ -22,9 +23,14 @@ const handleReCompile = (type, project) => {
 
 };
 
+const watchProject = (project) => {
+
+};
+
 module.exports = {
 	handleStyle,
 	handleScript,
 	handleImage,
-	handleReCompile
+	handleReCompile,
+	watchProject
 }

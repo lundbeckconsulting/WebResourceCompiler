@@ -24,7 +24,8 @@
     "./WebResourceCompilerConfig.json"
   ],
   "scripts": {
-    "WRC": "node WebResourceCompiler.js"
+    "WRC": "node WebResourceCompiler.js",
+    "WrcDemo": "node --experimental-json-modules WRC.mjs"
   },
   "author": "Stein Lundbeck",
   "license": "MIT",
@@ -35,10 +36,13 @@
     "babel-minify": "^0.5.1",
     "babel-preset-es2020": "^1.0.2",
     "babel-preset-minify": "^0.5.1",
+    "compress-images": "^1.9.9",
     "generate-source-map": "0.0.5",
     "iconv": "^3.0.0",
+    "jshint": "^2.13.1",
     "node-sass": "^4.14.1",
     "node-watch": "^0.6.4",
+    "sass": "^1.43.4",
     "uglify-js": "^3.10.1",
     "uglifycss": "0.0.29"
   },
